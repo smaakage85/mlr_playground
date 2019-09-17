@@ -20,7 +20,7 @@ create_task <- function(abt, target = "Class", test_oot = FALSE,
                         label_cols = c("cpr_nr", "se_nr", "rating")) {
 
   # create task.
-  task <- TaskClassif$new(id = "compliance_training", backend = abt, target = target)
+  task <- TaskClassif$new(id = "compliance", backend = abt, target = target)
 
 
   # what variables should be treated as 'label' cols (=not as features)?
