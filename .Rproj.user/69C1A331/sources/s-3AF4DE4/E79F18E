@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1568720489304.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1308520193",
+    "id" : "E79F18E",
+    "lastKnownWriteTime" : 1568720499,
+    "last_content_update" : 1568720499482,
+    "path" : "~/mlr3training/.Rbuildignore",
+    "project_path" : ".Rbuildignore",
+    "properties" : {
+        "cursorPosition" : "1,15",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "text"
+}

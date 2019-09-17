@@ -1,0 +1,77 @@
+library(caret)
+library(mlr3pipelines)
+data(GermanCredit)
+abt <- GermanCredit
+library(mlr3)
+library(mlr3tuning)
+library(paradox)
+
+library(mlr3)
+
+# s?t task.
+task <- TaskClassif$new(id = "compliance", backend = abt, target = "Class")
+task_scor <- TaskClassif$new(id = "complianceScoring", backend = abt, target = "Class")
+
+# s?t trn/test.
+test.idx <- sample(seq_len(task$nrow), 50)
+train.idx <- dplyr::setdiff(seq_len(task$nrow), test.idx)
+task$row_roles$use <- train.idx
+
+# s?t kolonne-roller.
+# ...
+
+# s?t graph.
+scale <- mlr_pipeops$get("scale", id = "scale1")
+pca <- mlr_pipeops$get("pca")
+xgb_learner <- mlr_pipeops$get("learner", mlr_learners$get("classif.xgboost"), id = "xgb")
+xgb_learner_2 <- mlr_pipeops$get("learner", mlr_learners$get("classif.xgboost"), id = "xgb2")
+rf_learner <- mlr_pipeops$get("learner", mlr_learners$get("classif.ranger"), id = "rf")
+classif_avg <- mlr_pipeops$get("classifavg", innum = 3, id = "class_avg")
+
+# lav graph
+graph <- Graph$new()$
+  add_pipeop(scale)$
+  add_pipeop(pca)$
+  add_pipeop(xgb_learner)$
+  add_pipeop(xgb_learner_2)$
+  add_pipeop(rf_learner)$
+  add_pipeop(classif_avg)
+
+# forbind noder
+graph <- graph$
+  add_edge("scale1", "xgb")$
+  add_edge("pca", "rf")$
+  add_edge("pca", "xgb2")$
+  add_edge("xgb", "class_avg", dst_channel = 1)$
+  add_edge("xgb2", "class_avg", dst_channel = 2)$
+  add_edge("rf", "class_avg", dst_channel = 3)
+
+# s?t parametre, der skal tunes over.
+param_set <- paradox::ParamSet$new(params = list(
+  paradox::ParamInt$new("pca.rank.", lower = 25L, upper = 30L),
+  paradox::ParamDbl$new("xgb.eta", lower = 0.01, upper = 0.2),
+  paradox::ParamInt$new("rf.mtry", lower = 5, upper = 20),
+  paradox::ParamInt$new("xgb2.nrounds", lower = 100, upper = 250)
+))
+
+
+# s?t validation scheme.
+validation_scheme <- mlr_resamplings$get("cv")
+
+# s?t measure.
+measure <- mlr_measures$mget("classif.acc")
+
+
+gl <- GraphLearner$new(id = "Pipeline", graph)
+
+terminator <- term("evals", n_evals = 5)
+tuner <- tnr("grid_search")
+at <- mlr3tuning::AutoTuner$new(gl, validation_scheme, measure, param_set,
+                                terminator, tuner)
+
+at$store_bmr = TRUE
+at$train(task)
+
+# beregn pr?diktioner.
+task$row_roles$use <- test.idx
+at$predict(task_scor)
