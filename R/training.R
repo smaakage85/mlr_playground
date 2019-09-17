@@ -51,8 +51,8 @@ create_graph_learner <- function() {
   # sæt graph.
   scale <- mlr_pipeops$get("scale", id = "scale")
   xgb_learner <- mlr_pipeops$get("learner",
-                                 mlr_learners$get("classif.xgboost"),
-                                 id = "xgb")
+                                 mlr_learners$get("classif.ranger"),
+                                 id = "rf")
 
   # lav graph.
   graph <- Graph$new()$
@@ -61,7 +61,7 @@ create_graph_learner <- function() {
 
   # forbind noder.
   graph <- graph$
-    add_edge("scale", "xgb")
+    add_edge("scale", "rf")
 
   # konstruér graph learner.
   GraphLearner$new(id = "Pipeline", graph)
@@ -73,7 +73,7 @@ create_graph_learner <- function() {
 #' @param GL
 #' @param validation_scheme
 #'
-#' @importFrom paradox ParamSet ParamDbl
+#' @importFrom paradox ParamSet ParamDbl ParamInt
 #' @importFrom mlr3 mlr_resamplings mlr_measures
 #' @importFrom mlr3tuning AutoTuner tnr term
 #'
@@ -84,7 +84,7 @@ create_tuner <- function(GL,
 
   # sæt parametre, der skal tunes over.
   param_set <- ParamSet$new(params = list(
-    ParamDbl$new("xgb.eta", lower = 0.01, upper = 0.2)
+    ParamInt$new("rf.mtry", lower = 5L, upper = 20L)
   ))
 
   # define tuning.

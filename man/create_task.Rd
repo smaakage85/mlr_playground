@@ -2,9 +2,11 @@
 % Please edit documentation in R/training.R
 \name{create_task}
 \alias{create_task}
-\title{data(GermanCredit)
-abt <- GermanCredit
-Create Task for Compliance Training}
+\title{library(caret)
+library(mlr3pipelines)
+library(mlr3)
+library(mlr3tuning)
+library(paradox)}
 \usage{
 create_task(abt, target = "Class", test_oot = FALSE,
   label_cols = c("cpr_nr", "se_nr", "rating"))
@@ -18,6 +20,7 @@ create_task(abt, target = "Class", test_oot = FALSE,
 \code{task}.
 }
 \description{
+# load data.
 data(GermanCredit)
 abt <- GermanCredit
 Create Task for Compliance Training
